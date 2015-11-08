@@ -1,0 +1,24 @@
+{
+  "name": "archiveweekly",
+  "version": "1.0.0",
+  "description": "Archives SPOTIFY'S Discover Weekly playlist for later listening.",
+  "main": "app.js",
+  "dependencies": {
+    "cookie-parser": "^1.4.0",
+    "express": "^4.13.3",
+    "moment": "^2.10.6",
+    "morgan": "^1.6.1",
+    "request": "^2.65.0",
+    "rethinkdb": "^2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "spotify",
+    "archive"
+  ],
+  "author": "Trevor Starick",
+  "license": "MIT"
+}
