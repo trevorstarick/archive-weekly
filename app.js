@@ -39,7 +39,7 @@ var app = express();
 // Use cookies, logging and static file serving
 app.use(cookieParser(cookie_secret));
 app.use(logger('combined'));
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 
 // Define scope and reusable Auth token
@@ -191,7 +191,7 @@ function refreshToken(req, res) {
 
 // Main web endpoint
 app.get('/archive', function(req, res) {
-  if (req.signedCookies.id) {
+  if (req.signedCookies.id && req.signedCookies.refresh_token) {
 
     if (req.signedCookies.access_token) {
       var access_token = req.signedCookies.access_token;
@@ -210,13 +210,14 @@ app.get('/archive', function(req, res) {
         Object.keys(plists).forEach(function(v, i) {
           if (plists[i].name === plist_name) {
             dupe = true;
-            res.send('found archive. no need to archive this week!');
+            res.redirect('/done');
           } else if (plists[i].name === "Discover Weekly" && dupe === false) {
             var playlist = plists[i];
 
             fetchTracks(access_token, playlist, function(tracks) {
               archive(access_token, id, tracks, plist_name, function(response) {
-                res.json(response);
+                // res.json(response);
+                res.redirect('/done');
               });
             });
           }
@@ -225,6 +226,8 @@ app.get('/archive', function(req, res) {
     } else {
       refreshToken(req, res);
     }
+  } else {
+    res.redirect('/login');
   }
 });
 
@@ -245,9 +248,17 @@ app.get('/login', function(req, res) {
 // Callback Me Maybe
 app.get('/crj', auth);
 
+app.get('/start', function(req, res) {
+  res.sendFile(__dirname + '/public/start.html');
+});
+
+app.get('/done', function(req, res) {
+  res.sendFile(__dirname + '/public/done.html');
+});
+
 // Catch all and point to index. Lazy man's 404 page
-app.all('*', function(req, res) {
-  res.end('hi');
+app.all('/*', function(req, res) {
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 // Listen on enviroment variable port or default of 8000
