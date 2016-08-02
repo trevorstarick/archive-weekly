@@ -90,22 +90,35 @@ exports.auth = function(req, res) {
 
 // Fetch all playlists (private and public) and pass them back
 exports.fetchPlaylists = function(access_token, id, cb) {
-    request({
-        baseUrl: 'https://api.spotify.com/v1/',
-        uri: 'users/' + id + '/playlists',
-        qs: {
-            limit: 50
-        },
-        headers: {
-            "Authorization": "Bearer " + access_token
-        },
-        json: true
-    }, function(e, r, b) {
-        if (e) throw e;
-        if (b.error) console.log(e);
-
-        return cb(b.items);
-    });
+    var offset = 0, run = true, items = [];
+    
+    fetch(offset);
+    
+    function fetch(offset) {
+        request({
+            baseUrl: 'https://api.spotify.com/v1/',
+            uri: 'users/' + id + '/playlists',
+            qs: {
+                limit: 50,
+                offset: offset
+            },
+            headers: {
+                "Authorization": "Bearer " + access_token
+            },
+            json: true
+        }, function(e, r, b) {
+            if (e) throw e;
+            if (b.error) console.log(e);
+            
+            items = items.concat(b.items);
+            
+            if (b.next) {
+                fetch(offset + 50);
+            } else {
+                return cb(items);   
+            }
+        });
+    }
 }
 
 // Fetch all tracks in the playlist and pass back the uris
